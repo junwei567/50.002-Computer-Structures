@@ -1,0 +1,79 @@
+* circuit for Lab#2
+.include "nominal.jsim"
+.include "8clocks.jsim"
+.include "lab2checkoff.jsim"
+
+* 2-input NAND: inputs are A and B, output is Z
+.subckt nand2 a b z
+MPD1 z a 1 0 NENH sw=8 sl=1
+MPD2 1 b 0 0 NENH sw=8 sl=1
+MPU1 z a vdd vdd PENH sw=10 sl=1
+MPU2 z b vdd vdd PENH sw=10 sl=1
+.ends
+
+* INVERTER: input is A, output is Z
+.subckt inv a z
+MPD1 z a 0 0 NENH sw=16 sl=1
+MPU1 z a vdd vdd PENH sw=16 sl=1
+.ends
+
+* NOR: input is A and B, output is Z
+.subckt nor a b z
+MPU1 vdd A 1 vdd PENH sw=4 sl=1
+MPU2 1 B z vdd PENH sw=4 sl=1
+MPD1 0 B z 0 NENH sw=4 sl=1
+MPD2 0 A z 0 NENH sw=4 sl=1
+.ends
+
+* OR: input is A and B, output is Z
+.subckt or a b z
+Xnor0 A B C nor
+Xinv0 C z inv
+.ends
+
+
+* 2-input XOR
+.subckt xor a b z
+XinvA a out_a_inv inv
+XinvB b out_b_inv inv
+
+MPD1 z a i 0 NENH sw=8 sl=1
+MPD2 z out_b_inv i 0 NENH sw=8 sl=1
+MPD3 i b 0 0 NENH sw=8 sl=1
+MPD4 i out_a_inv 0 0 NENH sw=8 sl=1
+
+MPU1 k a vdd vdd PENH sw=8 sl=1
+MPU2 z out_b_inv k vdd PENH sw=8 sl=1
+MPU3 j out_a_inv vdd vdd PENH sw=8 sl=1
+MPU4 z b j vdd PENH sw=8 sl=1
+.ends
+
+
+* 2-input AND
+.subckt and2 a b z
+Xnand0 a b c nand2
+Xinv0 c z inv
+.ends
+
+* FULL ADDER
+.subckt fa a b cin s co
+Xxor1 a b 1 xor
+Xxor2 cin 1 s xor
+Xand1 cin 1 n and2
+Xand2 a b m and2
+Xor1 m n co or
+.ends
+
+
+* 4-BIT ADDER
+.subckt ADDER4 a3 a2 a1 a0 b3 b2 b1 b0 s4 s3 s2 s1 s0
+* remember the node named "0" is the ground node
+* nodes c0 through c3 are internal to the ADDER module
+Xbit0 a0 b0 0 s0 c0 FA
+Xbit1 a1 b1 c0 s1 c1 FA
+Xbit2 a2 b2 c1 s2 c2 FA
+Xbit3 a3 b3 c2 s3 s4 FA
+.ends
+
+* test
+.plot Xtest.c0
