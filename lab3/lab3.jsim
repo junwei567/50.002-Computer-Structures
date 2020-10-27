@@ -4,7 +4,7 @@
 /* .include "lab3boolean.jsim" */
 /* .include "lab3adder.jsim" */
 /* .include "lab3shifter.jsim" */
-/* .include "lab3checkoff_6.jsim" */
+/* .include "lab3checkoff_10.jsim" */
 .include "lab3multiply.jsim"
 
 
