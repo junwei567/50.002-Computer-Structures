@@ -1,0 +1,12 @@
+.include "nominal.jsim"
+
+.subckt F A B C Z
+MPDA 3 A 2 0 NENH sw=8 sl=1 
+MPDB 2 B 0 0 NENH sw=8 sl=1
+MPDC 3 C 0 0 NENH sw=8 sl=1
+MPUA 1 A vdd vdd PENH sw=10 sl=1
+MPUB 1 B vdd vdd PENH sw=10 sl=1
+MPUC 3 C 1 vdd PENH sw=10 sl=1
+MINVN Z 3 0 0 NENH sw=8 sl=1 
+MINVP Z 3 vdd vdd PENH sw=10 sl=1
+.ends
