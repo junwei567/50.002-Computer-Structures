@@ -1,0 +1,64 @@
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "lab5pc.jsim"
+/* .include "lab5regfile.jsim" */
+/* .include "lab5ctl.jsim" */
+/* .include "lab5basicblock.jsim" */
+/* .include "lab5checkoff.jsim" */
+
+* FULL ADDER
+.subckt fa a b cin s co
+Xxor1 a b 1 xor2
+Xxor2 cin 1 s xor2
+Xand1 cin 1 n and2
+Xand2 a b m and2
+Xor1 m n co or2
+.ends
+
+* hint for one of the modules
+/* .connect 0 B[31:3]
+.connect 1 B[2]
+.connect 0 B[1:0] */
+
+* PC
+.subckt pc clk reset ia[31:0]
+* your mux/register/+4 circuit here
+Xfa1 ia[1:0] 0#2 0#2 out[1:0] co[1:0] fa
+Xfa2 ia[2] 1 co[1] out[2] co[2] fa
+Xfa3 ia[31:3] 0#29 co[30:2] out[31:3] co[31:3] fa
+// for reset signal
+Xmux1 reset#32 out[31:0] 0#32 d[31:0] mux2
+// 32bit registers 
+Xreg1 d[31:0] clk#32 ia[31:0] dreg
+.ends
+
+* REGFILE
+Xregfile
++ vdd 0 0 ra[4:0] adata[31:0] // A read port
++ vdd 0 0 ra2mux[4:0] bdata[31:0] // B read port
++ 0 clk werf rc[4:0] wdata[31:0] // write port
++ $memory width=32 nlocations=31
+
+.subckt regfile clk werf ra2sel ra[4:0] rb[4:0] rc[4:0]
++ wdata[31:0] radata[31:0] rbdata[31:0]
+*.. your register file circuit here ...
+.ends
+
+* CTL
+Xctl vdd 0 0 id[31:26] // one read port
++ pcsel[2:0] wasel asel ra2sel bsel alufn[5:0] wdsel[1:0] werf moe xwr
++ $memory width=18 nlocations=64 contents=(
++ 0b000000000000000000 // opcode=0b000000
++ 0b000000000000000000 // opcode=0b000001
++...
++)
+
+.subckt ctl reset id[31:26] ra2sel bsel alufn[5:0] wdsel[1:0] werf moe wr
+* ... your control circuit here ...
+.ends
+
+// all done
+.subckt beta clk reset ia[31:0] id[31:0] ma[31:0]
++ moe mrd[31:0] wr mwd[31:0]
+*... your circuit here ...
+.ends
